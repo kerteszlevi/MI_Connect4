@@ -1,8 +1,8 @@
 import static java.lang.Math.*;
 
 public class StudentPlayer extends Player{
-    private int depth = 5;
-    private int maxPossibleScore;
+    private final int depth = 8;
+    private final int maxPossibleScore;
     //scoring table for a board with the height of 6 and width of 7 where you need to
     // connect 4 dots. Currently have to be calculated manually. Currently this
     private final int[][] scoreTable={
@@ -34,13 +34,13 @@ public class StudentPlayer extends Player{
     @Override
     public int step(Board board) {
         int[][] sajtmalacka = arrayCopy2d(scoreTable);
-        int bestScore = -9999999;
+        int bestScore = -999999;
         int bestMove = -1;
         int previousPlayer = board.getLastPlayerIndex();
         Board boardCopy = new Board(board);
         for(int possibleMove: board.getValidSteps()){
             boardCopy.step(playerIndex, possibleMove);
-            int score = minimax(boardCopy, depth, false, previousPlayer);
+            int score = minimax(boardCopy, depth, false, previousPlayer, -999999, 999999);
             if(bestScore<score){
                 bestScore = score;
                 bestMove = possibleMove;
@@ -54,29 +54,38 @@ public class StudentPlayer extends Player{
     }
     //Minmax functions:
 
-    public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex){
+    public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex, int alpha, int beta){
         if(depth == 0 || position.gameEnded()){
-            if(isMaximizing && position.gameEnded()) return -999999;
+            if(isMaximizing && position.gameEnded()) return -999;
+            if(!isMaximizing && position.gameEnded()) return 999;
             return evaluate(position);
 
         }
         if(isMaximizing){
-            int maxEval = -999;
+            int maxEval = -999999;
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
                 positionCopy.step(playerIndex, possibleColumn);
-                int eval = minimax(positionCopy, depth-1,false, previousPlayerIndex);
+                int eval = minimax(positionCopy, depth-1,false, previousPlayerIndex, alpha, beta);
                 maxEval = max(maxEval, eval);
+                //alpha-beta pruning
+                alpha = max(alpha, eval);
+                if(beta<=alpha) break;
+
                 positionCopy = new Board(position);
             }
             return maxEval;
         }else{
-            int minEval = 999;
+            int minEval = 999999;
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
                 positionCopy.step(previousPlayerIndex, possibleColumn);
-                int eval = minimax(positionCopy, depth-1,true,previousPlayerIndex);
+                int eval = minimax(positionCopy, depth-1,true,previousPlayerIndex, alpha, beta);
                 minEval = min(minEval, eval);
+
+                beta = min(beta, eval);
+                if(beta<=alpha) break;
+
                 positionCopy = new Board(position);
             }
             return minEval;
@@ -140,11 +149,7 @@ public class StudentPlayer extends Player{
     }
 
     public boolean indexCheck(int rowToCheck, int columnToCheck){
-        if(rowToCheck<0||(boardSize[0]-1)<rowToCheck||columnToCheck<0||(boardSize[1]-1)<columnToCheck){
-            return false;
-        }else{
-            return true;
-        }
+        return rowToCheck >= 0 && (boardSize[0] - 1) >= rowToCheck && columnToCheck >= 0 && (boardSize[1] - 1) >= columnToCheck;
     }
     public int[][] generateScoreTable(int numberOfRows, int numberOfColumns){
         return new int[0][0];

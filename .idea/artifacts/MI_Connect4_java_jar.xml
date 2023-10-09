@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MI_Connect4_java:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MI_Connect4_java_jar</output-path>
+    <root id="archive" name="MI_Connect4_java.jar">
+      <element id="module-output" name="MI_Connect4_java" />
+    </root>
+  </artifact>
+</component>
