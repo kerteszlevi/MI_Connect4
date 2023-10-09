@@ -34,12 +34,12 @@ public class StudentPlayer extends Player{
     @Override
     public int step(Board board) {
         int[][] sajtmalacka = arrayCopy2d(scoreTable);
-        int bestScore = -999999;
+        int bestScore = -9999999;
         int bestMove = -1;
         int previousPlayer = board.getLastPlayerIndex();
         Board boardCopy = new Board(board);
         for(int possibleMove: board.getValidSteps()){
-            boardCopy.step(playerIndex,possibleMove);
+            boardCopy.step(playerIndex, possibleMove);
             int score = minimax(boardCopy, depth, false, previousPlayer);
             if(bestScore<score){
                 bestScore = score;
@@ -47,21 +47,21 @@ public class StudentPlayer extends Player{
             }
             boardCopy = new Board(board);
         }
+        if(bestMove == -1) {
+            System.out.println();
+        }
         return bestMove;
     }
     //Minmax functions:
 
     public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex){
         if(depth == 0 || position.gameEnded()){
-            if(!position.getValidSteps().isEmpty()){
-                return evaluate(position)+20;
-            }else{
-                return evaluate(position);
-            }
+            if(isMaximizing && position.gameEnded()) return -999999;
+            return evaluate(position);
 
         }
         if(isMaximizing){
-            int maxEval = -999999;
+            int maxEval = -999;
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
                 positionCopy.step(playerIndex, possibleColumn);
@@ -71,7 +71,7 @@ public class StudentPlayer extends Player{
             }
             return maxEval;
         }else{
-            int minEval = 999999;
+            int minEval = 999;
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
                 positionCopy.step(previousPlayerIndex, possibleColumn);
@@ -104,7 +104,7 @@ public class StudentPlayer extends Player{
         for(int row = 0; row < stateCopy.length; row++){
             for(int col = 0; col < state.getState()[row].length;col++){
                 //minden pozícióra
-                if(stateCopy[row][col] == 0 || stateCopy[row][col] == playerIndex) continue;
+                if(stateCopy[row][col] == 0 || stateCopy[row][col] == state.getLastPlayerIndex()) continue;
                 else{
                     //horizontális, vertikális és átlós irányok
                     for(int rowindex = row-nToConnect+1;rowindex<row+nToConnect;rowindex++) {
@@ -113,7 +113,6 @@ public class StudentPlayer extends Player{
                         }
                     }
                 }
-
             }
         }
         return arraySum2d(scoreCopy);
