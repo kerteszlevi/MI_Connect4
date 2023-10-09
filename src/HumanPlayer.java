@@ -14,6 +14,7 @@ public class HumanPlayer extends Player {
             if (column >= 0 && column < boardSize[1]) {
                 break;
             }
+            if(!board.getValidSteps().contains(column)) break;
         }
         return column;
     }
