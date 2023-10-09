@@ -34,6 +34,7 @@ public class StudentPlayer extends Player{
 
     @Override
     public int step(Board board) {
+        int[][] sajtmalacka = arrayCopy2d(scoreTable);
         int bestScore = -999999;
         int bestMove = -1;
         int previousPlayer = board.getLastPlayerIndex();
@@ -53,7 +54,12 @@ public class StudentPlayer extends Player{
 
     public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex){
         if(depth == 0 || position.gameEnded()){
-            return evaluate(position);
+            if(!position.getValidSteps().isEmpty()){
+                return evaluate(position)+20;
+            }else{
+                return evaluate(position);
+            }
+
         }
         if(isMaximizing){
             int maxEval = -999999;
@@ -94,8 +100,13 @@ public class StudentPlayer extends Player{
         return score;
     }
     public int evaluate2(Board state){
+        int[][] stateCopy = arrayCopy2d(state.getState());
+        for(int row = 0; row < stateCopy.; row++){
+            for(int col = 0; col < state.getState()[row].length;col++){
 
-        return 0;
+                }
+            }
+        }
     }
 
 
@@ -108,5 +119,14 @@ public class StudentPlayer extends Player{
             }
         }
         return sum;
+    }
+    public int[][] arrayCopy2d(int[][] arrayToCopy){
+        int noRows = arrayToCopy.length;
+        int noColumns = arrayToCopy[0].length;
+        int [][] copy = new int[noRows][noColumns];
+        for(int i = 0; i<noRows;i++){
+            System.arraycopy(arrayToCopy[i], 0, copy[i], 0, noColumns);
+        }
+        return copy;
     }
 }
