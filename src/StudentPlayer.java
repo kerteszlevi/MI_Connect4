@@ -1,5 +1,4 @@
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 public class StudentPlayer extends Player{
     private int depth = 5;
@@ -83,7 +82,7 @@ public class StudentPlayer extends Player{
             return minEval;
         }
     }
-    public int evaluate(Board state){
+    public int evaluate2(Board state){
         int score = 0;
         for(int row = 0; row < state.getState().length; row++){
             for(int col = 0; col < state.getState()[row].length;col++){
@@ -99,14 +98,25 @@ public class StudentPlayer extends Player{
         }
         return score;
     }
-    public int evaluate2(Board state){
+    public int evaluate(Board state){
         int[][] stateCopy = arrayCopy2d(state.getState());
-        for(int row = 0; row < stateCopy.; row++){
+        int[][] scoreCopy = arrayCopy2d(scoreTable);
+        for(int row = 0; row < stateCopy.length; row++){
             for(int col = 0; col < state.getState()[row].length;col++){
-
+                //minden pozícióra
+                if(stateCopy[row][col] == 0 || stateCopy[row][col] == playerIndex) continue;
+                else{
+                    //horizontális, vertikális és átlós irányok
+                    for(int rowindex = row-nToConnect+1;rowindex<row+nToConnect;rowindex++) {
+                        for(int colindex = col-nToConnect+1;colindex<col+nToConnect;colindex++){
+                            if(  (rowindex == row||colindex == col||abs(rowindex - row) == abs(colindex-col)  ) && indexCheck(rowindex, colindex)) scoreCopy[rowindex][colindex] -=1;
+                        }
+                    }
                 }
+
             }
         }
+        return arraySum2d(scoreCopy);
     }
 
 
@@ -128,5 +138,13 @@ public class StudentPlayer extends Player{
             System.arraycopy(arrayToCopy[i], 0, copy[i], 0, noColumns);
         }
         return copy;
+    }
+
+    public boolean indexCheck(int rowToCheck, int columnToCheck){
+        if(rowToCheck<0||(boardSize[0]-1)<rowToCheck||columnToCheck<0||(boardSize[1]-1)<columnToCheck){
+            return false;
+        }else{
+            return true;
+        }
     }
 }
