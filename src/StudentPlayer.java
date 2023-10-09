@@ -146,4 +146,7 @@ public class StudentPlayer extends Player{
             return true;
         }
     }
+    public int[][] generateScoreTable(int numberOfRows, int numberOfColumns){
+        return new int[0][0];
+    }
 }
