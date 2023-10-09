@@ -2,7 +2,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class StudentPlayer extends Player{
-    private int depth = 10;
+    private int depth = 5;
     private int maxPossibleScore;
     //scoring table for a board with the height of 6 and width of 7 where you need to
     // connect 4 dots. Currently have to be calculated manually. Currently this
@@ -45,6 +45,7 @@ public class StudentPlayer extends Player{
                 bestScore = score;
                 bestMove = possibleMove;
             }
+            boardCopy = new Board(board);
         }
         return bestMove;
     }
@@ -59,8 +60,9 @@ public class StudentPlayer extends Player{
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
                 positionCopy.step(playerIndex, possibleColumn);
-                int eval = minimax(positionCopy, depth-1,false);
+                int eval = minimax(positionCopy, depth-1,false, previousPlayerIndex);
                 maxEval = max(maxEval, eval);
+                positionCopy = new Board(position);
             }
             return maxEval;
         }else{
@@ -70,6 +72,7 @@ public class StudentPlayer extends Player{
                 positionCopy.step(previousPlayerIndex, possibleColumn);
                 int eval = minimax(positionCopy, depth-1,true,previousPlayerIndex);
                 minEval = min(minEval, eval);
+                positionCopy = new Board(position);
             }
             return minEval;
         }
@@ -92,7 +95,7 @@ public class StudentPlayer extends Player{
     }
     public int evaluate2(Board state){
 
-
+        return 0;
     }
 
 
