@@ -3,6 +3,7 @@ import static java.lang.Math.min;
 
 public class StudentPlayer extends Player{
     private int depth = 10;
+    private int maxPossibleScore;
     //scoring table for a board with the height of 6 and width of 7 where you need to
     // connect 4 dots. Currently have to be calculated manually. Currently this
     private final int[][] scoreTable={
@@ -26,6 +27,7 @@ public class StudentPlayer extends Player{
         int horizontal = (width - nToConnect + 1) * height;
         int diagonal = (width - nToConnect + 1) * (height - nToConnect + 1) * 2;
 
+        maxPossibleScore = vertical + horizontal + diagonal;
         //minScore = (vertical + horizontal + diagonal * 2)*-1;
         //maxScore = vertical + horizontal + diagonal * 2;
     }
@@ -34,10 +36,11 @@ public class StudentPlayer extends Player{
     public int step(Board board) {
         int bestScore = -999999;
         int bestMove = -1;
+        int previousPlayer = board.getLastPlayerIndex();
         Board boardCopy = new Board(board);
         for(int possibleMove: board.getValidSteps()){
             boardCopy.step(playerIndex,possibleMove);
-            int score = minimax(boardCopy, depth, false);
+            int score = minimax(boardCopy, depth, false, previousPlayer);
             if(bestScore<score){
                 bestScore = score;
                 bestMove = possibleMove;
@@ -47,7 +50,7 @@ public class StudentPlayer extends Player{
     }
     //Minmax functions:
 
-    public int minimax(Board position, int depth, boolean isMaximizing ){
+    public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex){
         if(depth == 0 || position.gameEnded()){
             return evaluate(position);
         }
@@ -64,8 +67,8 @@ public class StudentPlayer extends Player{
             int minEval = 999999;
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
-                positionCopy.step(position.getLastPlayerIndex(), possibleColumn);
-                int eval = minimax(positionCopy, depth-1,true);
+                positionCopy.step(previousPlayerIndex, possibleColumn);
+                int eval = minimax(positionCopy, depth-1,true,previousPlayerIndex);
                 minEval = min(minEval, eval);
             }
             return minEval;
@@ -86,6 +89,10 @@ public class StudentPlayer extends Player{
             }
         }
         return score;
+    }
+    public int evaluate2(Board state){
+
+
     }
 
 
