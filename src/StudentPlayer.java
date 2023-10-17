@@ -1,8 +1,8 @@
 import static java.lang.Math.*;
+import java.util.Random;
 
 public class StudentPlayer extends Player{
-    private int depth = 5;
-    private int maxPossibleScore;
+    private int depth = 8;
     //scoring table for a board with the height of 6 and width of 7 where you need to
     // connect 4 dots. Currently have to be calculated manually. Currently this
     private final int[][] scoreTable={
@@ -25,22 +25,19 @@ public class StudentPlayer extends Player{
         int vertical = (height - nToConnect + 1) * width;
         int horizontal = (width - nToConnect + 1) * height;
         int diagonal = (width - nToConnect + 1) * (height - nToConnect + 1) * 2;
-
-        maxPossibleScore = vertical + horizontal + diagonal;
-        //minScore = (vertical + horizontal + diagonal * 2)*-1;
-        //maxScore = vertical + horizontal + diagonal * 2;
+        if(getRandomBoolean()) depth = 6;
+        else depth = 8;
     }
 
     @Override
     public int step(Board board) {
-        int[][] sajtmalacka = arrayCopy2d(scoreTable);
-        int bestScore = -9999999;
+        int bestScore = -999999;
         int bestMove = -1;
         int previousPlayer = board.getLastPlayerIndex();
         Board boardCopy = new Board(board);
         for(int possibleMove: board.getValidSteps()){
             boardCopy.step(playerIndex, possibleMove);
-            int score = minimax(boardCopy, depth, false, previousPlayer);
+            int score = minimax(boardCopy, depth, false, previousPlayer, -999999, 999999);
             if(bestScore<score){
                 bestScore = score;
                 bestMove = possibleMove;
@@ -54,34 +51,44 @@ public class StudentPlayer extends Player{
     }
     //Minmax functions:
 
-    public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex){
+    public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex, int alpha, int beta){
         if(depth == 0 || position.gameEnded()){
-            if(isMaximizing && position.gameEnded()) return -999999;
+            if(isMaximizing && position.gameEnded()) return -999;
+            if(!isMaximizing && position.gameEnded()) return 999;
             return evaluate(position);
 
         }
         if(isMaximizing){
-            int maxEval = -999;
+            int maxEval = -999999;
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
                 positionCopy.step(playerIndex, possibleColumn);
-                int eval = minimax(positionCopy, depth-1,false, previousPlayerIndex);
+                int eval = minimax(positionCopy, depth-1,false, previousPlayerIndex, alpha, beta);
                 maxEval = max(maxEval, eval);
+                //alpha-beta pruning
+                alpha = max(alpha, eval);
+                if(beta<=alpha) break;
+
                 positionCopy = new Board(position);
             }
             return maxEval;
         }else{
-            int minEval = 999;
+            int minEval = 999999;
             Board positionCopy = new Board(position);
             for(int possibleColumn : positionCopy.getValidSteps()){
                 positionCopy.step(previousPlayerIndex, possibleColumn);
-                int eval = minimax(positionCopy, depth-1,true,previousPlayerIndex);
+                int eval = minimax(positionCopy, depth-1,true,previousPlayerIndex, alpha, beta);
                 minEval = min(minEval, eval);
+
+                beta = min(beta, eval);
+                if(beta<=alpha) break;
+
                 positionCopy = new Board(position);
             }
             return minEval;
         }
     }
+    //régi butább kiértékelőfüggvény
     public int evaluate2(Board state){
         int score = 0;
         for(int row = 0; row < state.getState().length; row++){
@@ -98,6 +105,8 @@ public class StudentPlayer extends Player{
         }
         return score;
     }
+
+    //Kiértékelő függvén, ami a tábla egy pozícióját értékeli ki.
     public int evaluate(Board state){
         int[][] stateCopy = arrayCopy2d(state.getState());
         int[][] scoreCopy = arrayCopy2d(scoreTable);
@@ -120,6 +129,8 @@ public class StudentPlayer extends Player{
 
 
     //Helper functions:
+
+    //A pont táblát összegzi.
     public int arraySum2d(int[][] array) {
         int sum = 0;
         for (int[] row : array) {
@@ -129,6 +140,7 @@ public class StudentPlayer extends Player{
         }
         return sum;
     }
+    //a beépített arraycopy segítségével egy 2d int tömböt másol
     public int[][] arrayCopy2d(int[][] arrayToCopy){
         int noRows = arrayToCopy.length;
         int noColumns = arrayToCopy[0].length;
@@ -138,15 +150,16 @@ public class StudentPlayer extends Player{
         }
         return copy;
     }
-
+    //ellenőrzi, hogy az átadott index a táblán belül található-e.
     public boolean indexCheck(int rowToCheck, int columnToCheck){
-        if(rowToCheck<0||(boardSize[0]-1)<rowToCheck||columnToCheck<0||(boardSize[1]-1)<columnToCheck){
-            return false;
-        }else{
-            return true;
-        }
+        return rowToCheck >= 0 && (boardSize[0] - 1) >= rowToCheck && columnToCheck >= 0 && (boardSize[1] - 1) >= columnToCheck;
     }
+    //TODO:tetszőleges tábla méretre implementálni kell
     public int[][] generateScoreTable(int numberOfRows, int numberOfColumns){
         return new int[0][0];
+    }
+    public boolean getRandomBoolean() {
+        Random random = new Random();
+        return random.nextBoolean();
     }
 }
