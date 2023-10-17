@@ -25,8 +25,9 @@ public class StudentPlayer extends Player{
         int vertical = (height - nToConnect + 1) * width;
         int horizontal = (width - nToConnect + 1) * height;
         int diagonal = (width - nToConnect + 1) * (height - nToConnect + 1) * 2;
-        if(getRandomBoolean()) depth = 6;
-        else depth = 8;
+
+        //if(getRandomBoolean()) depth = 6;
+        //else depth = 8;
     }
 
     @Override
