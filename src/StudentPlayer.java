@@ -1,8 +1,11 @@
 import static java.lang.Math.*;
+
+import java.util.HashMap;
 import java.util.Random;
 
+
 public class StudentPlayer extends Player{
-    private int depth = 8;
+    private int depth = 6;
     //scoring table for a board with the height of 6 and width of 7 where you need to
     // connect 4 dots. Currently have to be calculated manually. Currently this
     private final int[][] scoreTable={
@@ -30,6 +33,9 @@ public class StudentPlayer extends Player{
         //else depth = 8;
     }
 
+    private HashMap<Long, Integer> transpositionTable = new HashMap<>();
+    private ZobristHash zobristHash = new ZobristHash(boardSize[0], boardSize[1]);
+
     @Override
     public int step(Board board) {
         int bestScore = -999999;
@@ -53,6 +59,12 @@ public class StudentPlayer extends Player{
     //Minmax functions:
 
     public int minimax(Board position, int depth, boolean isMaximizing, int previousPlayerIndex, int alpha, int beta){
+        long positionKey = zobristHash.hash(position.getState());
+
+        if (transpositionTable.containsKey(positionKey)) {
+            return transpositionTable.get(positionKey);
+        }
+
         if(depth == 0 || position.gameEnded()){
             if(isMaximizing && position.gameEnded()) return -999;
             if(!isMaximizing && position.gameEnded()) return 999;
@@ -72,6 +84,7 @@ public class StudentPlayer extends Player{
 
                 positionCopy = new Board(position);
             }
+            transpositionTable.put(positionKey, maxEval);
             return maxEval;
         }else{
             int minEval = 999999;
@@ -86,6 +99,7 @@ public class StudentPlayer extends Player{
 
                 positionCopy = new Board(position);
             }
+            transpositionTable.put(positionKey, minEval);
             return minEval;
         }
     }
@@ -162,5 +176,32 @@ public class StudentPlayer extends Player{
     public boolean getRandomBoolean() {
         Random random = new Random();
         return random.nextBoolean();
+    }
+
+    public class ZobristHash {
+        private long[][] table;
+
+        public ZobristHash(int rows, int cols) {
+            table = new long[rows][cols];
+            Random random = new Random();
+
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    table[i][j] = random.nextLong();
+                }
+            }
+        }
+
+        public long hash(int[][] board) {
+            long h = 0;
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[i].length; j++) {
+                    if (board[i][j] != 0) {
+                        h ^= table[i][j];
+                    }
+                }
+            }
+            return h;
+        }
     }
 }
